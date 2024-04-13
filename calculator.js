@@ -1,118 +1,139 @@
-let buttons = document.querySelectorAll(".button");
+let result = 0;
+
+let currentOperator = "+";
+
+let currentNumber = NaN;
 
 let display = document.querySelector(".display");
 
+display.textContent = result;
 
-const operators = ['+', '-', '*', '/'];
+let isInitialized = true;
 
-let operatorButtons = document.querySelectorAll (".operatorButton")
+const buttons = document.querySelectorAll(".button");
 
-for (let button of buttons){
-    if(button.textContent == "AC"){
-        button.addEventListener("click", () => {
-            display.textContent = '';
-            //reinstall all event listeners back to the operator buttons
-            addEventListenerToOperatorButtons();
-            //add event listener back to equal
+const operators = ["+", "-", "*", "/"];
 
-        })
-    }
-
-    else if (button.textContent == "="){
-        button.addEventListener("click", () => {
-            let calculation = display.textContent;
-            let calcArr = calculationSplitter(calculation);
-            display.textContent = 
-            calculator(Number(calcArr[0]), calcArr[1], Number(calcArr[2]));
-            //reinstall all event listeners back to the operator buttons
-            addEventListenerToOperatorButtons();
-            //remove event listener from equal
-        })
+for(let button of buttons){
+    if(button.textContent == "="){
+        button.addEventListener("click", equalClickHandler);
     }
 
     else if (operators.includes(button.textContent)){
-
-            button.addEventListener("click", () => {
-                //add event listener back to equal
-                display.textContent += button.textContent;
-                //remove all event listeners on all operator buttons
-                for (let operatorButton of operatorButtons) {
-                    operatorButton.removeEventListener("click", () => {
-                        display.textContent += button.textContent;
-                    })
-                 }
-            })
-            
-
-
-            }
-    
-    else{
-    button.addEventListener("click", () => {
-    display.textContent += button.textContent;
-    })}
-
- 
+        button.addEventListener("click", operatorClickHandler);
     }
 
- 
+    else if (button.textContent == "AC"){
+        button.addEventListener("click", allClearClickHandler);
+    }
 
+    else{
+        button.addEventListener("click", numberClickHandler);
+    }
+}
 
+function operatorClickHandler(event){
+    if(!Number.isNaN(currentNumber)){
+        // console.log("currentNumber != NaN executed")
+        console.log(`result: ${result}`);
+        console.log(`currentOperator: ${currentOperator}`);
+        console.log(`currentNumber: ${currentNumber}`);
+        result = calculator(result, currentOperator, currentNumber);
+        console.log(`(after calculation)result: ${result}`);
+        currentNumber = NaN;
+        console.log(`currentNumber(after calculation): ${currentNumber}`);
+        currentOperator = event.target.textContent;
+        console.log(`currentOperator: ${currentOperator}`);
+        display.textContent = result + currentOperator;
+        isInitialized = false;
+    }
 
-    
+    else{
+        currentOperator = event.target.textContent;
+        console.log(`currentNumber=NaN, result: ${result} operator: ${currentOperator}`);
+        display.textContent = result + currentOperator;
+        isInitialized = false;
+    }
+}
+
+function numberClickHandler(event){
+    if(isInitialized == false && !Number.isNaN(currentNumber)){
+        console.log(`currentNumber (before): ${currentNumber}`);
+        currentNumber += event.target.textContent;
+        console.log(`currentNumber (firstScenarioTriggered):${currentNumber} `);
+        display.textContent += event.target.textContent; 
+    }
+
+    else if(isInitialized == false && Number.isNaN(currentNumber)){
+
+        currentNumber = "";
+        currentNumber += event.target.textContent;
+        console.log(`currentNumber: ${currentNumber}`);
+        display.textContent += event.target.textContent;
+    }
+
+    else if(isInitialized == true){
+        isInitialized = false;
+        currentNumber = event.target.textContent;
+        display.textContent = currentNumber;
+    }
+}
+
+function equalClickHandler(){
+    if(!Number.isNaN(currentNumber)){
+        result = calculator(result, currentOperator, currentNumber);
+        display.textContent = result;
+        currentOperator = "+";
+        currentNumber = NaN;
+        isInitialized = true;
+    }
+
+    else{
+
+        display.textContent = result;
+        currentOperator = "+";
+        currentNumber = NaN;
+        isInitialized = true;
+
+    }
+}
+
+function allClearClickHandler(){
+    result = 0;
+
+    currentOperator = "+";
+
+    currentNumber = NaN;
+    display.textContent = result;
+
+    isInitialized = true;
+}
+
 
 
 function calculator(num1, operator, num2){
     if(operator == '+'){
-        return num1+num2;
+        return num1 + Number(num2);
     }
 
     else if (operator == '-'){
-        return num1 - num2;
+        return num1 - Number(num2);
     }
 
     else if (operator == '*'){
-        return num1 * num2;
+        return num1 * Number(num2);
     }
 
     else if (operator == '/'){
-        return num1/num2;
+        return num1 / Number(num2);
     }
 }
 
-function StringContainsOperator(string){
-    for (let operator of operators){
-        if(string.includes(operator)){
-            return true;
-        }
-    }
 
-    return false;
-}
 
-function addEventListenerToOperatorButtons(){
-    for (let operatorButton of operatorButtons){
-        operatorButton.addEventListener("click", () => {
-            display.textContent += operatorButton.textContent;
-        })
-    }
-}
 
-function calculationSplitter (aString){
-    let operatorInCalculation;
-    for (let operator of operators){
-        if(aString.includes(operator)){
-            operatorInCalculation = operator;
-        }
-    }
 
-    let index = aString.indexOf(operatorInCalculation);
 
-    let calculationArr = [aString.substring(0, index), aString[index], aString.substring(index+1)];
-
-    return calculationArr;
-
-}
 
 
 
